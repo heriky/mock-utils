@@ -1,10 +1,10 @@
 {
   "name": "mock-utils",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
+    "start": "node index.js --mock ./mock --useDirPrefix --port 8300",
     "build": "tsc"
   },
   "bin": {

@@ -74,7 +74,7 @@ function register(data, app, prefix = '') {
 }
 
 module.exports = function mockUtils(root, app, config = { useDirPrefix: false, usePathPrefix: false, apiPrefix: '' }) {
-    const _root = path.resolve(root);
+    const _root = path.resolve(process.cwd(), root);
     const files = walkDir(_root);
     files.forEach(file => {
         const data = require(file);
