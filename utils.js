@@ -1,11 +1,13 @@
 const fs = require('fs');
 const path = require('path');
+const url = require('url');
 
 const ALLOWED_METHODS = ['GET', 'POST', 'DELETE', 'PUT', 'PATCH'];
 const PATTERN_SIGN = '__parttern__';
 const PATTERN_KEYS = ['url', 'method', 'response'];
 
 function walkDir(dir) {
+    if (!fs.existsSync(dir)) return [];
 
     let result = [];
     let files = fs.readdirSync(dir);
@@ -73,8 +75,41 @@ function register(data, app, prefix = '') {
 
 }
 
-module.exports = function mockUtils(root, app, config = { useDirPrefix: false, usePathPrefix: false, apiPrefix: '' }) {
-    const _root = path.resolve(process.cwd(), root);
+// const config = {
+//     apiPrefix: '',
+//     microService: {
+//         '/service1': '',
+//         '/service2': ''
+//     },
+//     useDirPrefix: true,
+//     usePathPrefix: true
+// };
+
+module.exports = function mockUtils(root, app, config = { useDirPrefix: false, usePathPrefix: false, apiPrefix: '', microService: {} }) {
+    // 如果传入的是相对路径，则必然是运行在文件中，使用__dirname
+    const _root = path.isAbsolute(root) ? root : path.resolve(__dirname, root);
+
+    if (Object.keys(config.microService).length === 0) {
+        loadDir(_root, app, config)
+    } else {
+        loadMicroService(_root, app, config)
+    }
+}
+
+function loadMicroService(_root, app, config) {
+    const { apiPrefix='', microService } = config;
+    Object.entries(microService).forEach(([serviceName, dir]) => {
+        const prefix = url.resolve(apiPrefix, serviceName);
+        const _path = path.isAbsolute(dir) ? dir : path.resolve(_root, dir);
+        const files = walkDir(_path);
+        files.forEach(file => {
+            const data = require(file);
+            register(data, app, prefix);
+        });
+    });
+}
+
+function loadDir(_root, app, config) {
     const files = walkDir(_root);
     files.forEach(file => {
         const data = require(file);

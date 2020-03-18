@@ -1,11 +1,11 @@
 {
   "name": "mock-utils",
-  "version": "0.0.8",
+  "version": "0.0.11",
   "description": "",
   "main": "index.js",
   "scripts": {
     "start": "node index.js --mock ./mock --useDirPrefix --port 8300",
-    "build": "tsc"
+    "build": "cp index.js ./dist/index.js & cp utils.js ./dist/utils.js & cp package.json ./dist/package.json"
   },
   "bin": {
     "mock-server": "index.js"
