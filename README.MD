@@ -1,6 +1,7 @@
 ### Quick start
 
 `npm install mock-utils -g`
+
 `mock-server --mock ./mock --port 8000`
 
 ### 作为命令行
@@ -20,9 +21,9 @@
     devServer : {
         before: app => mockUtils('./mock', app, { 
             apiPrefix: '',
+            // 前缀为/serviceName1的mock数据会在./mock/abcd目录下面搜索
+            // 前缀为/serviceName2的mock数据会在./mock/abcdefg目录下面搜索
             microService: {
-                // 前缀为/serviceName1的mock数据会在./mock/abcd目录下面搜索
-                // 前缀为/serviceName2的mock数据会在./mock/abcdefg目录下面搜索
                 '/serviceName1': 'abcd',
                 '/serviceName2': 'abcdefg'
             }

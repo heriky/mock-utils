@@ -1,11 +1,12 @@
 {
   "name": "mock-utils",
-  "version": "0.0.11",
-  "description": "",
+  "version": "0.0.14",
+  "description": "mock utils, convenient config",
   "main": "index.js",
   "scripts": {
     "start": "node index.js --mock ./mock --useDirPrefix --port 8300",
-    "build": "cp index.js ./dist/index.js & cp utils.js ./dist/utils.js & cp package.json ./dist/package.json"
+    "build": "cp index.js ./dist/index.js & cp utils.js ./dist/utils.js & cp package.json ./dist/package.json & cp README.MD ./dist/README.MD",
+    "pub": "npm run build && cd ./dist && npm publish"
   },
   "bin": {
     "mock-server": "index.js"
