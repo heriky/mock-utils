@@ -70,7 +70,7 @@ function register(data, app, prefix = '') {
             return;
         }
 
-        app.get(url, (req, res) => res.send(value));
+        app.get(url, (req, res, next) => res.send(typeof value === 'function' ? value(req, res, next) : value));
     });
 
 }
@@ -89,7 +89,7 @@ module.exports = function mockUtils(root, app, config = { useDirPrefix: false, u
     // 如果传入的是相对路径，则必然是运行在文件中，使用__dirname
     const _root = path.isAbsolute(root) ? root : path.resolve(__dirname, root);
 
-    if (Object.keys(config.microService).length === 0) {
+    if (Object.keys(config.microService || {}).length === 0) {
         loadDir(_root, app, config)
     } else {
         loadMicroService(_root, app, config)
