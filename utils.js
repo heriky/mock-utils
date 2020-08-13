@@ -70,7 +70,7 @@ function register(data, app, prefix = '') {
             return;
         }
 
-        app.get(url, (req, res, next) => res.send(typeof value === 'function' ? value(req, res, next) : value));
+        app.get(url, (req, res, next) => typeof value === 'function' ? value(req, res, next) : res.send(value));
     });
 
 }
