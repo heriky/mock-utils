@@ -26,6 +26,10 @@
             microService: {
                 '/serviceName1': 'abcd',
                 '/serviceName2': 'abcdefg'
+            },
+            // 为mock配置response headers
+            headers: {
+                'Access-Control-Allow-Origin': '*'
             }
         })
     }
