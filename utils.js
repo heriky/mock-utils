@@ -43,7 +43,7 @@ function makeIterator(plainObj) {
 }
 let c = 1;
 // 解析数据, 接受普通函数和Map对象
-function register(data, app, prefix = '') {
+function register(data, app, prefix = '', headers) {
 
     Object.entries(data).forEach(([key, value]) => {
         // 1. '/a/b/c': {}
@@ -55,6 +55,9 @@ function register(data, app, prefix = '') {
             const { url: _url, method, response } = value;
             app[method](_url, (req, res) => {
                 const resData = typeof response === 'function' ? response(req, res) : response;
+                for(let key in headers) {
+                    res.setHeader(key, headers[key]);
+                }
                 res.send(resData);
             });
             return;
@@ -64,13 +67,21 @@ function register(data, app, prefix = '') {
             Object.entries(value).forEach(([method, rawData]) => {
                 app[method](url, (req, res, next) => {
                     const _data = typeof rawData === 'function' ? rawData(req, res, next) : rawData;
+                    for(let key in headers) {
+                        res.setHeader(key, headers[key]);
+                    }
                     _data && res.send(_data);
                 });
             });
             return;
         }
 
-        app.get(url, (req, res, next) => typeof value === 'function' ? value(req, res, next) : res.send(value));
+        app.get(url, (req, res, next) => {
+            for(let key in headers) {
+                res.setHeader(key, headers[key]);
+            }
+            typeof value === 'function' ? value(req, res, next) : res.send(value)
+        })
     });
 
 }
@@ -85,7 +96,7 @@ function register(data, app, prefix = '') {
 //     usePathPrefix: true
 // };
 
-module.exports = function mockUtils(root, app, config = { useDirPrefix: false, usePathPrefix: false, apiPrefix: '', microService: {} }) {
+module.exports = function mockUtils(root, app, config = { useDirPrefix: false, usePathPrefix: false, apiPrefix: '', microService: {}, headers: {} }) {
     // 如果传入的是相对路径，则必然是运行在文件中，使用__dirname
     const _root = path.isAbsolute(root) ? root : path.resolve(__dirname, root);
 
@@ -97,14 +108,14 @@ module.exports = function mockUtils(root, app, config = { useDirPrefix: false, u
 }
 
 function loadMicroService(_root, app, config) {
-    const { apiPrefix='', microService } = config;
+    const { apiPrefix='', microService, headers } = config;
     Object.entries(microService).forEach(([serviceName, dir]) => {
         const prefix = url.resolve(apiPrefix, serviceName);
         const _path = path.isAbsolute(dir) ? dir : path.resolve(_root, dir);
         const files = walkDir(_path);
         files.forEach(file => {
             const data = require(file);
-            register(data, app, prefix);
+            register(data, app, prefix, headers);
         });
     });
 }
@@ -115,8 +126,9 @@ function loadDir(_root, app, config) {
         const data = require(file);
         const { pathService, dirService } = genService(file, _root);
         let prefix = config.apiPrefix || '';
+        let headers = config.headers;
         if (config.useDirPrefix) prefix = prefix + dirService;
         else if (config.usePathPrefix) prefix = prefix + pathService;
-        register(data, app, prefix);
+        register(data, app, prefix, headers);
     });
 }
